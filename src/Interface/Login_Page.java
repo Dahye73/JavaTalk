@@ -11,9 +11,10 @@ class Login_Page extends JFrame {
     private JTextField passwordField;
     private DBConnection dbConnection = new DBConnection();
     
-    public String username;
-    public String userphonenumber;
-    public String useremail;
+    public static String username;
+    public static String userphonenumber;
+    public static String useremail;
+    public static boolean isLoginIn = false;
     
     public Login_Page() {
 
@@ -84,6 +85,8 @@ class Login_Page extends JFrame {
             		username = dbConnection.getUser(id, "name");
             		userphonenumber = dbConnection.getUser(id, "phonenumber");
             		useremail = dbConnection.getUser(id, "email");
+            		
+            		isLoginIn = true;
             		
             		System.out.println("로그인 성공 !");
             		System.out.println(username + "," + userphonenumber + "," + useremail);
