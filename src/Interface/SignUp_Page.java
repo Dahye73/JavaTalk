@@ -47,7 +47,7 @@ class SignUp_Page extends JFrame {
     private JTextField emailField;
     
     public SignUp_Page() {
-        setTitle("SignUp_Page");
+        setTitle("SignUp Page");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 700);
 

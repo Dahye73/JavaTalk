@@ -11,14 +11,14 @@ class Login_Page extends JFrame {
     private JTextField passwordField;
     private DBConnection dbConnection = new DBConnection();
     
-    public static String username;
+    public static String username = "»ç¿ëÀÚ";
     public static String userphonenumber;
     public static String useremail;
     public static boolean isLoginIn = false;
     
     public Login_Page() {
 
-        setTitle("Login_Page");
+        setTitle("Login Page");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 700);
 

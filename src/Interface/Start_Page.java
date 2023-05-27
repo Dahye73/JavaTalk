@@ -31,7 +31,7 @@ public class Start_Page extends JFrame {
         constraints.anchor = GridBagConstraints.CENTER;
 
         JLabel label = new JLabel("JavaTalk");
-        label.setForeground( new Color(124, 124, 124)); 
+        label.setForeground( new Color(64, 64, 64)); 
         label.setFont(new Font("³ª´®½ºÄù¾î¶ó¿îµå Bold", Font.BOLD, 35));
 
         c1.add(label, constraints);
