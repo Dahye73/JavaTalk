@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBConnection {
     private Connection con;
@@ -59,6 +62,24 @@ public class DBConnection {
     	return false;
     }
     
+    //아이디 중복체크
+    public boolean isExistingUser(String id) {
+        try {
+            String SQL = "SELECT * FROM users WHERE id = ?";
+            PreparedStatement preparedStatement = con.prepareStatement(SQL);
+            preparedStatement.setString(1, id);
+            rs = preparedStatement.executeQuery();
+            
+            if (rs.next()) {
+                return true; // 이미 사용 중인 아이디가 존재함
+            }
+        } catch (Exception e) {
+            System.out.println("데이터베이스 검색 오류: " + e.getMessage());
+        }
+        
+        return false; // 사용 가능한 아이디
+    }
+
     //로그인
     public boolean authenticateUser(String id, String password) {
     	
@@ -99,5 +120,50 @@ public class DBConnection {
         
         return null;
     }
+    
+    // 사용자들의 이름 가져오기
+    public String[] getUserNames() {
+    	
+    	try {
+    		
+    		String SQL = "SELECT name FROM users";
+    		PreparedStatement preparedStatement = con.prepareStatement(SQL);
+            rs = preparedStatement.executeQuery();
+            
+            StringBuilder names = new StringBuilder();
+            
+            while(rs.next()) {
+            	
+            	String userName = rs.getString("name");
+            	names.append(userName).append("\n");
+            }
+            
+            String[] nameArray = names.toString().split("\n");
+            return nameArray;
+    		
+    	}catch (Exception e) {
+            System.out.println("데이터베이스 검색 오류: " + e.getMessage());
+        }
 
+        return null;
+    }
+   
+    public boolean insertFriend(String friendName, String userId) {
+        try {
+            String SQL = "INSERT INTO Friend (friend_name, user_id, friend_status) VALUES (?, ?, 1)";
+            PreparedStatement preparedStatement = con.prepareStatement(SQL);
+            preparedStatement.setString(1, friendName);
+            preparedStatement.setString(2, userId);
+            int rowsAffected = preparedStatement.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            System.out.println("데이터베이스 삽입 오류: " + e.getMessage());
+        }
+        
+        return false;
+    }
+    
 }

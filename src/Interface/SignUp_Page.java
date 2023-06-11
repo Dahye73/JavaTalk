@@ -113,17 +113,24 @@ class SignUp_Page extends JFrame {
             	String phonenumber = phonenumberField.getText();
             	String email = emailField.getText();
             	
-            	boolean isSuccess = dbConnection.insertUser(id, password, name, phonenumber, email);
+            	boolean isExistingUser = dbConnection.isExistingUser(id);
             	
-            	if(isSuccess) {
-            		System.out.println("회원가입 성공");
-            	}
-            	else {
+            	if(isExistingUser) {
+            		JOptionPane.showMessageDialog(SignUp_Page.this, "이미 가입된 아이디입니다.", "회원가입 실패", JOptionPane.ERROR_MESSAGE);
+            	}else {
             		
+            		boolean isSuccess = dbConnection.insertUser(id, password, name, phonenumber, email);
+                	
+                	if(isSuccess) {
+                		System.out.println("회원가입 성공");
+                	}
+                	else {
+                		
+                	}
+                    Start_Page startPage = new Start_Page();
+                    startPage.setVisible(true);
+                    dispose(); // 현재 페이지 닫기
             	}
-                Start_Page startPage = new Start_Page();
-                startPage.setVisible(true);
-                dispose(); // 현재 페이지 닫기
             }
         });
         

@@ -14,6 +14,8 @@ class Login_Page extends JFrame {
     public static String username = "사용자";
     public static String userphonenumber;
     public static String useremail;
+    public static String userid;
+    
     public static boolean isLoginIn = false;
     
     public Login_Page() {
@@ -85,11 +87,13 @@ class Login_Page extends JFrame {
             		username = dbConnection.getUser(id, "name");
             		userphonenumber = dbConnection.getUser(id, "phonenumber");
             		useremail = dbConnection.getUser(id, "email");
-            		
+            		userid = dbConnection.getUser(id, "id");
             		isLoginIn = true;
             		
+            		JOptionPane.showMessageDialog(Login_Page.this, "로그인 성공!", "알림", JOptionPane.INFORMATION_MESSAGE);
+            		
             		System.out.println("로그인 성공 !");
-            		System.out.println(username + "," + userphonenumber + "," + useremail);
+            		System.out.println(userid + "," + username + "," + userphonenumber + "," + useremail);
             		Profile_Page profilePage = new Profile_Page();
             		profilePage.setVisible(true);
             		dispose();

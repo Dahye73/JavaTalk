@@ -96,7 +96,6 @@ public class Start_Page extends JFrame {
     public static void main(String[] args) {
     	
         new Start_Page();
-        File path = new File(".");
-        System.out.println(path.getAbsolutePath());
+        
     }
 }
