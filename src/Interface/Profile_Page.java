@@ -29,15 +29,6 @@ public class Profile_Page extends JFrame {
         pageTitle.setBounds(15, 0, 200, 50);
         add(pageTitle);
         
-//        //돋보기 버튼 (사용자 검색)
-//        ImageIcon searchIcon = new ImageIcon(Profile_Page.class.getResource("/image/search.png"));
-//        JButton searchButton = new JButton(searchIcon);
-//        searchButton.setBorderPainted(false);
-//        searchButton.setContentAreaFilled(false);
-//        searchButton.setFocusPainted(false);
-//        searchButton.setBounds(30, 160, 100, 100);
-//        add(searchButton);
-        
         JButton searchButton = new JButton("친구검색");
         searchButton.setForeground(Color.black);
         searchButton.setBackground(Color.white);
@@ -75,11 +66,15 @@ public class Profile_Page extends JFrame {
         Friend_Text.setBounds(20, 200, 200, 30);
         add(Friend_Text);
         
-        ImageIcon Friend_Image = new ImageIcon(Profile_Page.class.getResource("/image/person10.png"));
-        FriendList friendList = new FriendList(Friend_Image, "친구 1");
-        friendList.setBounds(20, 240, 450, 80);
-        add(friendList);
-        
+        FriendList friendList = new FriendList(Login_Page.userid);
+
+        JScrollPane scrollPane = new JScrollPane(friendList);
+        scrollPane.setBounds(20, 240, 450, 350);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        add(scrollPane);
+
         // 하단바 생성
         
         BottomBar bottombar = new BottomBar();
@@ -125,7 +120,7 @@ public class Profile_Page extends JFrame {
                         	 JOptionPane.showMessageDialog(Profile_Page.this, "친구 추가가 완료되었습니다.", "성공", JOptionPane.INFORMATION_MESSAGE);
                         	 
                         }else {
-                        	JOptionPane.showMessageDialog(Profile_Page.this, "친구 추가에 실패했습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+                        	JOptionPane.showMessageDialog(Profile_Page.this, "이미 친구추가 하였습니다.", "오류", JOptionPane.ERROR_MESSAGE);
                         	
                         }
                     }
@@ -203,7 +198,7 @@ public class Profile_Page extends JFrame {
                                     	 JOptionPane.showMessageDialog(Profile_Page.this, "친구 추가가 완료되었습니다.", "성공", JOptionPane.INFORMATION_MESSAGE);
                                     	 
                                     }else {
-                                    	JOptionPane.showMessageDialog(Profile_Page.this, "친구 추가에 실패했습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+                                    	JOptionPane.showMessageDialog(Profile_Page.this, "이미 친구 추가 하였습니다.", "오류", JOptionPane.ERROR_MESSAGE);
                                     	
                                     }
                                 }
@@ -247,7 +242,7 @@ public class Profile_Page extends JFrame {
     }
     
     
-    public static void main(String[] args) {
-    	new Profile_Page();
-    }
+//    public static void main(String[] args) {
+//    	new Profile_Page();
+//    }
 }

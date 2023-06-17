@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DBConnection {
@@ -148,22 +149,165 @@ public class DBConnection {
         return null;
     }
    
+    //친구 추가하기
     public boolean insertFriend(String friendName, String userId) {
         try {
-            String SQL = "INSERT INTO Friend (friend_name, user_id, friend_status) VALUES (?, ?, 1)";
-            PreparedStatement preparedStatement = con.prepareStatement(SQL);
+            // Check if friend already exists with friend_status = 1
+            String CHECK_SQL = "SELECT COUNT(*) FROM Friend WHERE friend_name = ? AND user_id = ? AND friend_status = 1";
+            PreparedStatement checkStatement = con.prepareStatement(CHECK_SQL);
+            checkStatement.setString(1, friendName);
+            checkStatement.setString(2, userId);
+            ResultSet rs = checkStatement.executeQuery();
+            if(rs.next() && rs.getInt(1) > 0) {
+                // Friend already exists with friend_status = 1
+                return false;
+            }
+            
+            // If friend doesn't exist with friend_status = 1, insert into database
+            String INSERT_SQL = "INSERT INTO Friend (friend_name, user_id, friend_status) VALUES (?, ?, 1)";
+            PreparedStatement preparedStatement = con.prepareStatement(INSERT_SQL);
             preparedStatement.setString(1, friendName);
             preparedStatement.setString(2, userId);
             int rowsAffected = preparedStatement.executeUpdate();
-            
+
             if (rowsAffected > 0) {
                 return true;
             }
         } catch (Exception e) {
             System.out.println("데이터베이스 삽입 오류: " + e.getMessage());
         }
-        
+
         return false;
     }
+
+
     
+    //찬구 목록 가져오기
+    public String[] getFriendNames(String userId) {
+        String[] friendNames = null;
+        try {
+            String sql = "SELECT friend_name FROM Friend WHERE user_id = ? AND friend_status = 1";
+            PreparedStatement statement = con.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
+            statement.setString(1, userId);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            resultSet.last();
+            int rowCount = resultSet.getRow();
+            resultSet.beforeFirst();
+
+            friendNames = new String[rowCount];
+
+            int index = 0;
+
+            while (resultSet.next()) {
+                String friendName = resultSet.getString("friend_name");
+                friendNames[index] = friendName;
+                index++;
+            }
+
+            resultSet.close();
+            statement.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return friendNames;
+    }
+    
+    public int addChatRoom(String roomName) {
+    	
+    	int roomId = -1;
+    	
+    	try {
+    		
+    		String SQL = "insert into chatroom (room_name) values (?)";
+    		
+    		PreparedStatement preparedStatement = con.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, roomName);
+            preparedStatement.executeUpdate();
+            
+            //get room_id
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                roomId = generatedKeys.getInt(1);
+            }
+            
+    	}catch (SQLException ex) {
+            System.out.println("데이터베이스 삽입 오류: " + ex.getMessage());
+        }
+    	System.out.println("방생성 성공");
+    	return roomId;
+    }
+    
+    public String getUserIdByName(String friendName) {
+        String userId = null;
+
+        try {
+            String SQL = "SELECT id FROM users WHERE name = ?";
+            PreparedStatement preparedStatement = con.prepareStatement(SQL);
+            preparedStatement.setString(1, friendName);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                userId = resultSet.getString("id");
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            System.out.println("데이터베이스 검색 오류: " + e.getMessage());
+        }
+        return userId;
+    }
+
+    public void addChatRoomMember(int roomId, String friendId) {
+        try {
+            String SQL = "INSERT INTO chatroommember (room_id, user_id) VALUES (?, ?)";
+            PreparedStatement preparedStatement = con.prepareStatement(SQL);
+
+            preparedStatement.setInt(1, roomId);
+            preparedStatement.setString(2, friendId);
+            
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("멤버 추가 성공");
+            } else {
+                System.out.println("멤버 추가 실패");
+            }
+        } catch (SQLException e) {
+            System.out.println("데이터베이스 삽입 오류: " + e.getMessage());
+        }
+    }
+    
+    public String[] getChatRooms(String userId) {
+        List<String> chatRooms = new ArrayList<>();
+        
+        try {
+            // 사용자 id에 해당하는 room_id 찾기
+            String SQL1 = "SELECT room_id FROM chatroommember WHERE user_id = ?";
+            PreparedStatement preparedStatement1 = con.prepareStatement(SQL1);
+            preparedStatement1.setString(1, userId);
+            ResultSet rs1 = preparedStatement1.executeQuery();
+            
+            while (rs1.next()) {
+                // 각 room_id에 해당하는 room_name 찾기
+                String SQL2 = "SELECT room_name FROM chatroom WHERE room_id = ?";
+                PreparedStatement preparedStatement2 = con.prepareStatement(SQL2);
+                preparedStatement2.setInt(1, rs1.getInt("room_id"));
+                ResultSet rs2 = preparedStatement2.executeQuery();
+                
+                if (rs2.next()) {
+                    chatRooms.add(rs2.getString("room_name"));
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("데이터베이스 쿼리 오류: " + ex.getMessage());
+        }
+        return chatRooms.toArray(new String[0]);
+    }
+
 }

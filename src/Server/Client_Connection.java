@@ -1,12 +1,19 @@
 package Server;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+
+import Interface.Chatting_Page;
 
 //클라이언트의 연결을 관리
 public class Client_Connection {
@@ -33,6 +40,7 @@ public class Client_Connection {
 	             connectedClients.add(clientHandler);
 	             clientHandler.start();
 			 }
+			 
 		}catch (IOException e ) {
 			e.printStackTrace();
 		}
@@ -47,20 +55,41 @@ public class Client_Connection {
 			this.clientSocket = clientSocket;
 		}
 		
+
 		@Override
 		public void run() {
 		    try {
-		        // 클라이언트의 요청을 처리하는 코드 작성, 예를 들어 clientSocket에서 읽기 또는 쓰기 작업을 수행할 수 있습니다.
-		        // 예를 들면, 입력 및 출력 스트림을 생성할 수 있습니다:
 		        InputStream inputStream = clientSocket.getInputStream();
+		        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
 		        OutputStream outputStream = clientSocket.getOutputStream();
+		        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
 
-		        // 스트림을 읽거나 쓰는 등의 작업을 수행할 수 있습니다.
-		        // ...
+		        Scanner scanner = new Scanner(System.in);
 
+		        while (true) {
+		            String message = reader.readLine();
+		            if (message == null) {
+		                // 클라이언트가 연결을 끊었을 때 처리할 로직
+		                break;
+		            }
+
+		            System.out.println("Received message from client: " + message);
+
+		            // 클라이언트에게 응답을 보내는 로직 추가
+		            writer.write("Server: " + message + "\n");
+		            writer.flush();
+
+		            // 서버에서 메시지를 입력하여 전송하는 로직 추가
+		            System.out.print("Enter message to send to client: ");
+		            String response = scanner.nextLine();
+		            writer.write("Server: " + response + "\n");
+		            writer.flush();
+		            
+		        }
 		    } catch (IOException e) {
 		        e.printStackTrace();
-		    } finally { 
+		    } finally {
 		        try {
 		            if (clientSocket != null) {
 		                clientSocket.close();
@@ -72,6 +101,8 @@ public class Client_Connection {
 		        connectedClients.remove(this);
 		    }
 		}
+
+
 	}
 	
 	public static void main(String[] args) {
