@@ -57,17 +57,6 @@ public class ChattingList_Page extends JFrame{
         setLocationRelativeTo(null); 
         setVisible(true);
         
-        Client_Connection server = new Client_Connection();
-        
-        Thread serverThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                server.start(12346);
-            }
-        });
-        
-        serverThread.start();
-        
         JButton addRoomBtn = new JButton("채팅방 생성");
         addRoomBtn.setForeground(Color.black);
         addRoomBtn.setBackground(Color.white);
@@ -155,6 +144,7 @@ public class ChattingList_Page extends JFrame{
                         // 선택된 채팅방 이름과 친구 목록을 사용하여 채팅방을 생성하는 로직 추가
                         int roomId = dbConnection.addChatRoom(chatRoomName);
                     	
+                        dbConnection.addChatRoomMember(roomId, Login_Page.userid);
                         for(String friend : selectedFriends) {
                         	
                         	String friendId = dbConnection.getUserIdByName(friend); 
@@ -206,7 +196,7 @@ public class ChattingList_Page extends JFrame{
                 public void actionPerformed(ActionEvent e) {
                     
                 	String selectedRoom = roomButton.getText();
-                	new Chatting_Page(selectedRoom, "localhost", 12346);
+                	new Chatting_Page(selectedRoom, "localhost", ServerLauncher.port);
                 }
             });
             chatRoomPanel.add(roomButton);

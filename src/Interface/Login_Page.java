@@ -2,10 +2,13 @@ package Interface;
 
 import java.awt.*;
 import javax.swing.*;
+
+import Server.ServerLauncher;
+
 import java.awt.event.*;
 import database.DBConnection;
 
-class Login_Page extends JFrame {
+public class Login_Page extends JFrame {
 
 	private JTextField idField;
     private JTextField passwordField;
@@ -17,6 +20,7 @@ class Login_Page extends JFrame {
     public static String userid;
     
     public static boolean isLoginIn = false;
+    
     
     public Login_Page() {
 
@@ -84,11 +88,20 @@ class Login_Page extends JFrame {
             	
             	if(isAuthenticated) {
             		
+            		
             		username = dbConnection.getUser(id, "name");
             		userphonenumber = dbConnection.getUser(id, "phonenumber");
             		useremail = dbConnection.getUser(id, "email");
             		userid = dbConnection.getUser(id, "id");
             		isLoginIn = true;
+            		
+            		// 서버 실행을 백그라운드 스레드로 이동
+            		Thread serverThread = new Thread(() -> {
+            		    ServerLauncher serverLauncher = new ServerLauncher(isLoginIn);
+            		    serverLauncher.startServer();
+            		});
+            		serverThread.start();
+
             		
             		JOptionPane.showMessageDialog(Login_Page.this, "로그인 성공!", "알림", JOptionPane.INFORMATION_MESSAGE);
             		

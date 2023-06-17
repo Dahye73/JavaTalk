@@ -1,5 +1,6 @@
 package database;
 
+import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -309,5 +310,49 @@ public class DBConnection {
         }
         return chatRooms.toArray(new String[0]);
     }
+    
+    public int getRoomId(String roomName) {
+        int roomId = -1;
 
+        try {
+            String SQL = "SELECT room_id FROM chatroom WHERE room_name = ?";
+            PreparedStatement preparedStatement = con.prepareStatement(SQL);
+            preparedStatement.setString(1, roomName);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                roomId = resultSet.getInt("room_id");
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            System.out.println("데이터베이스 검색 오류: " + e.getMessage());
+        }
+
+        return roomId;
+    }
+    
+    public void sendMessageToChatRoom(int roomId, String userId, String message, Timestamp timestamp) {
+        try {
+            String SQL = "INSERT INTO message (room_id, user_id, text, timestamp) VALUES (?, ?, ?, ?)";
+            PreparedStatement preparedStatement = con.prepareStatement(SQL);
+
+            preparedStatement.setInt(1, roomId);
+            preparedStatement.setString(2, userId);
+            preparedStatement.setString(3, message);
+            preparedStatement.setTimestamp(4, timestamp);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("메시지 전송 성공");
+            } else {
+                System.out.println("메시지 전송 실패");
+            }
+        } catch (SQLException e) {
+            System.out.println("데이터베이스 삽입 오류: " + e.getMessage());
+        }
+    }
 }

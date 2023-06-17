@@ -6,8 +6,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import Server.Client_Connection;
-
 public class BottomBar extends JPanel {
 	
     public BottomBar() {

@@ -54,7 +54,7 @@ public class Setting_Page extends JFrame{
     }
 	
 	
-//	public static void main(String[] args) {
-//		new Setting_Page();
-//	}
+	public static void main(String[] args) {
+		new Setting_Page();
+	}
 }
