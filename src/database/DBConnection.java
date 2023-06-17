@@ -355,4 +355,28 @@ public class DBConnection {
             System.out.println("데이터베이스 삽입 오류: " + e.getMessage());
         }
     }
+    
+    public List<String> getUserNamesByRoomId(int roomId, String userId) {
+        
+        List<String> userNames = new ArrayList<>();
+
+        String query = "SELECT u.name FROM users u " +
+                       "JOIN chatroommember c ON u.id = c.user_id " +
+                       "WHERE c.room_id = ? AND u.id != ?";
+
+        try (PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setInt(1, roomId);
+            stmt.setString(2, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String userName = rs.getString(1); // Changed getInt to getString
+                    userNames.add(userName);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return userNames;
+    }
 }

@@ -1,5 +1,6 @@
 package Interface;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -12,7 +13,8 @@ import java.net.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.sql.Timestamp;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -45,6 +47,8 @@ public class Chatting_Page extends JFrame {
         
         chatClient.setMessageListener(this::addReceivedMessage);
         
+        List<String> usernames = dbConnection.getUserNamesByRoomId(roomId, Login_Page.userid);
+        
         setTitle("Chatting_Page");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 700);
@@ -55,8 +59,19 @@ public class Chatting_Page extends JFrame {
 
         JLabel title = new JLabel(roomName);
         title.setForeground(new Color(64, 64, 64));
-        title.setFont(new Font("Intel", Font.PLAIN, 13));
-        title.setBounds(10, 0, 200, 30);
+        title.setFont(new Font("Intel", Font.PLAIN, 15));
+        
+        List<String> usernamesStr = new ArrayList<>();
+        for (String username : usernames) {
+            usernamesStr.add(username);
+        }
+        String joinedUsernames = String.join(", ", usernamesStr);
+        if (joinedUsernames.length() > 2) {
+            joinedUsernames = joinedUsernames.substring(0, joinedUsernames.length()); // 마지막 쉼표와 공백 제거
+        }
+
+        title.setText(roomName + " - " + joinedUsernames);
+        title.setBounds(10, 0, 400, 40);
         chatting.add(title);
 
         panel1 = new JPanel();
@@ -64,12 +79,16 @@ public class Chatting_Page extends JFrame {
         panel1.setBackground(new Color(255, 239, 249));
 
         scrollPane = new JScrollPane(panel1);
-        scrollPane.setBounds(10, 30, 470, 550);
+        scrollPane.setBounds(10, 50, 470, 550);
         scrollPane.setPreferredSize(new Dimension(465, 550));
         chatting.add(scrollPane);
         
-        JButton backButton = new JButton("뒤로 가기");
-        backButton.setBounds(100, 10, 80, 30);  // 위치와 크기 설정
+        JButton backButton = new JButton("나가기");
+        backButton.setFont(backButton.getFont().deriveFont(15f)); // 글꼴 크기 설정
+        backButton.setBackground(Color.WHITE); // 배경색 설정
+        backButton.setBorderPainted(false);
+        backButton.setFocusPainted(false);
+        backButton.setBounds(400, 0, 100, 40);  // 위치와 크기 설정
         backButton.addActionListener(new ActionListener() {
         	@Override
             public void actionPerformed(ActionEvent e) {
@@ -124,30 +143,18 @@ public class Chatting_Page extends JFrame {
     }
     
     private void addSentMessage(String message, Timestamp timestamp) {
-        
-    	JLabel sentMessageLabel = new JLabel(message);
-        sentMessageLabel.setForeground(Color.BLACK);
-        sentMessageLabel.setFont(new Font("Intel", Font.PLAIN, 13));
-        sentMessageLabel.setAlignmentX(RIGHT_ALIGNMENT); // 우측 정렬
-        sentMessageLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-        panel1.add(sentMessageLabel);
-        panel1.add(Box.createVerticalStrut(5)); // 메시지 사이의 간격 조정
-        panel1.revalidate();
-        panel1.repaint();
-        
-        // 스크롤바를 아래로 이동시킴
-        JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
-        verticalScrollBar.setValue(verticalScrollBar.getMaximum());
-    }
-    
-    private void addReceivedMessage(String message) {
-        // Do the same as addSentMessage but align to left.
-        JLabel receivedMessageLabel = new JLabel(message);
-        receivedMessageLabel.setForeground(Color.BLACK);
-        receivedMessageLabel.setFont(new Font("Intel", Font.PLAIN, 13));
-        receivedMessageLabel.setAlignmentX(LEFT_ALIGNMENT); // 좌측 정렬
-        receivedMessageLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-        panel1.add(receivedMessageLabel);
+        JTextArea sentMessageLabel = new JTextArea(3, 10);
+        sentMessageLabel.setFont(new Font("Intel", Font.PLAIN, 15)); 
+        sentMessageLabel.setEditable(false);
+        sentMessageLabel.setText(message + "\n" + timestamp);
+        sentMessageLabel.setLineWrap(true);
+        sentMessageLabel.setWrapStyleWord(true);
+        sentMessageLabel.setBackground(new Color(255, 239, 249)); // 적당한 배경색으로 설정
+        JPanel messageContainer = new JPanel(new BorderLayout());
+        messageContainer.setBackground(new Color(255, 239, 249));
+        messageContainer.add(sentMessageLabel, BorderLayout.LINE_END); // 메시지를 오른쪽으로 정렬
+        messageContainer.setBorder(new EmptyBorder(5, 50, 5, 5));
+        panel1.add(messageContainer);
         panel1.add(Box.createVerticalStrut(5)); // 메시지 사이의 간격 조정
         panel1.revalidate();
         panel1.repaint();
@@ -156,6 +163,36 @@ public class Chatting_Page extends JFrame {
         JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
         verticalScrollBar.setValue(verticalScrollBar.getMaximum());
     }
+
+    private void addReceivedMessage(String rawMessage) {
+        String[] splitMessage = rawMessage.split(":", 3); // ':'를 기준으로 문자열 분리
+        String userId = splitMessage[0];
+        String message = splitMessage[2];
+
+        JTextArea receivedMessageLabel = new JTextArea(3, 10);
+        receivedMessageLabel.setFont(new Font("Intel", Font.PLAIN, 15));
+        receivedMessageLabel.setEditable(false);
+        receivedMessageLabel.setText(userId + ": " + message);
+        receivedMessageLabel.setLineWrap(true);
+        receivedMessageLabel.setWrapStyleWord(true);
+        receivedMessageLabel.setBackground(new Color(255, 239, 249)); // 적당한 배경색으로 설정
+        JPanel messageContainer = new JPanel(new BorderLayout());
+        messageContainer.setBackground(new Color(255, 239, 249));
+        messageContainer.add(receivedMessageLabel, BorderLayout.LINE_START); // 메시지를 왼쪽으로 정렬
+        messageContainer.setBorder(new EmptyBorder(5, 5, 5, 50));
+        panel1.add(messageContainer);
+        panel1.add(Box.createVerticalStrut(5)); // 메시지 사이의 간격 조정
+        panel1.revalidate();
+        panel1.repaint();
+
+        // 스크롤바를 아래로 이동시킴
+        JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+        verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+    }
+
+
+
+
     
     private Timestamp getCurrentTimestamp() {
         LocalDateTime currentDateTime = LocalDateTime.now();
