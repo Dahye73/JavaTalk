@@ -14,6 +14,8 @@ import java.util.List;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+import Interface.ChatMessage;
+
 public class DBConnection {
     private Connection con;
     private Statement st;
@@ -396,5 +398,29 @@ public class DBConnection {
         }
 
         return userNames;
+    }
+    
+    public List<ChatMessage> getChatHistory(int roomId, String userId) {
+        List<ChatMessage> chatHistory = new ArrayList<>();
+        String query = "SELECT user_id, text, timestamp FROM message WHERE room_id = ? ORDER BY timestamp";
+
+        try {
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setInt(1, roomId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                String messageUserId = rs.getString("user_id");
+                String message = rs.getString("text");
+                Timestamp timestamp = rs.getTimestamp("timestamp");
+                ChatMessage chatMessage = new ChatMessage(messageUserId, message, timestamp);
+                chatHistory.add(chatMessage);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return chatHistory;
     }
 }

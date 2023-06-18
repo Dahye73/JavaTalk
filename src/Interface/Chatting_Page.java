@@ -45,7 +45,7 @@ public class Chatting_Page extends JFrame {
         roomId = dbConnection.getRoomId(roomName);
         chatClient.sendUserIdAndRoomId(userId, String.valueOf(roomId));
         
-        chatClient.setMessageListener(this::addReceivedMessage);
+        chatClient.setMessageListener(this::addReceivedMessage2);
         
         List<String> usernames = dbConnection.getUserNamesByRoomId(roomId, Login_Page.userid);
         
@@ -111,9 +111,11 @@ public class Chatting_Page extends JFrame {
         sendButton.setBackground(new Color(255, 239, 249));
         chatting.add(sendButton);
         
+        displayChatHistory();
+        
         setLocationRelativeTo(null);
         setVisible(true);
-
+        
         
         sendButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -164,7 +166,29 @@ public class Chatting_Page extends JFrame {
         verticalScrollBar.setValue(verticalScrollBar.getMaximum());
     }
 
-    private void addReceivedMessage(String rawMessage) {
+    private void addReceivedMessage(String userId, String message, Timestamp timestamp) {
+        JTextArea receivedMessageLabel = new JTextArea(3, 10);
+        receivedMessageLabel.setFont(new Font("Intel", Font.PLAIN, 15));
+        receivedMessageLabel.setEditable(false);
+        receivedMessageLabel.setText(userId + ": " + message + "\n" + timestamp);
+        receivedMessageLabel.setLineWrap(true);
+        receivedMessageLabel.setWrapStyleWord(true);
+        receivedMessageLabel.setBackground(new Color(255, 239, 249)); // 적당한 배경색으로 설정
+        JPanel messageContainer = new JPanel(new BorderLayout());
+        messageContainer.setBackground(new Color(255, 239, 249));
+        messageContainer.add(receivedMessageLabel, BorderLayout.LINE_START); // 메시지를 왼쪽으로 정렬
+        messageContainer.setBorder(new EmptyBorder(5, 5, 5, 50));
+        panel1.add(messageContainer);
+        panel1.add(Box.createVerticalStrut(5)); // 메시지 사이의 간격 조정
+        panel1.revalidate();
+        panel1.repaint();
+
+        // 스크롤바를 아래로 이동시킴
+        JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+        verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+    }
+
+    private void addReceivedMessage2(String rawMessage) {
         String[] splitMessage = rawMessage.split(":", 3); // ':'를 기준으로 문자열 분리
         String userId = splitMessage[0];
         String message = splitMessage[2];
@@ -189,9 +213,17 @@ public class Chatting_Page extends JFrame {
         JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
         verticalScrollBar.setValue(verticalScrollBar.getMaximum());
     }
-
-
-
+    
+    private void displayChatHistory() {
+        List<ChatMessage> chatHistory = dbConnection.getChatHistory(roomId, Login_Page.userid);
+        for (ChatMessage chatMessage : chatHistory) {
+            if (chatMessage.getUserId().equals(Login_Page.userid)) {
+                addSentMessage(chatMessage.getMessage(), chatMessage.getTimestamp());
+            } else {
+                addReceivedMessage(chatMessage.getUserId(), chatMessage.getMessage(), chatMessage.getTimestamp());
+            }
+        }
+    }
 
     
     private Timestamp getCurrentTimestamp() {
