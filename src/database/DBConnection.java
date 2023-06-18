@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import java.io.FileInputStream;
+import java.util.Properties;
+
 public class DBConnection {
     private Connection con;
     private Statement st;
@@ -18,13 +21,28 @@ public class DBConnection {
 
     public DBConnection() {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver"); //JDBC 드라이버 로딩
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/javatalk", "shin2", "shin2");
+            Properties properties = new Properties();
+            FileInputStream fis = new FileInputStream("config.properties");
+            properties.load(fis);
+            fis.close();
+
+            String url = properties.getProperty("db.url");
+            String username = properties.getProperty("db.username");
+            String password = properties.getProperty("db.password");
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = DriverManager.getConnection(url, username, password);
             st = con.createStatement();
+            
+            createTables createTablesObj = new createTables(con, st);
+            // 테이블 생성
+            createTablesObj.createTablesIfNotExists();
+            
         } catch (Exception e) {
             System.out.println("데이터베이스 연결 오류: " + e.getMessage());
         }
     }
+
 
     public boolean isAdmin(String adminID, String adminPassword) {
         try {
