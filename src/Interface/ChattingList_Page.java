@@ -2,6 +2,7 @@ package Interface;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -11,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -62,11 +64,13 @@ public class ChattingList_Page extends JFrame{
         addRoomBtn.setBackground(Color.white);
         addRoomBtn.setFont(new Font("나눔고딕코딩", Font.PLAIN, 13));
         addRoomBtn.setFocusPainted(false);
-        addRoomBtn.setBounds(360, 10, 110, 50);
+        addRoomBtn.setBounds(370, 10, 110, 40);
         
         chatRoomPanel = new JPanel();
         chatRoomPanel.setLayout(new BoxLayout(chatRoomPanel, BoxLayout.Y_AXIS));
         chatRoomPanel.setBackground(new Color(255, 239, 249));
+        
+        
         JScrollPane scrollPane = new JScrollPane(chatRoomPanel);
         scrollPane.setBounds(10, 60, 470, 550);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); // 가로 스크롤 비활성화
@@ -182,29 +186,44 @@ public class ChattingList_Page extends JFrame{
 
         String[] chatRooms = dbConnection.getChatRooms(Login_Page.userid);
         
+        // 첫 번째 박스 위쪽에 여백 추가
+        chatRoomPanel.add(Box.createVerticalStrut(10));
+
         for (String roomName : chatRooms) {
+            JPanel roomPanel = new JPanel(new BorderLayout());
+            roomPanel.setBorder(new LineBorder(new Color(233, 223, 223), 1)); // 경계선 설정
+            roomPanel.setBackground(Color.WHITE);
+            roomPanel.setPreferredSize(new Dimension(450, 60)); // 패널의 크기 설정
+            roomPanel.setMaximumSize(new Dimension(450, 60)); // 패널의 최대 크기 설정
+            roomPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // 왼쪽 정렬
+            
             JButton roomButton = new JButton(roomName);
-            
-            roomButton.setPreferredSize(new Dimension(470, 50)); // 버튼의 크기 설정
-            roomButton.setMaximumSize(new Dimension(470, 50)); // 버튼의 최대 크기 설정
-            roomButton.setBackground(Color.WHITE); // 버튼의 배경색 설정
-            roomButton.setHorizontalAlignment(JButton.CENTER); // 가운데 정렬
-            roomButton.setBorder(new EmptyBorder(5, 5, 5, 5)); 
-            
+            roomButton.setBackground(Color.WHITE);
+            roomButton.setFocusPainted(false);
+            roomButton.setHorizontalAlignment(JButton.LEFT); // 왼쪽 정렬
+            roomButton.setBorder(new EmptyBorder(10, 10, 10, 10));// 여백 설정
             roomButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    
-                	String selectedRoom = roomButton.getText();
-                	new Chatting_Page(selectedRoom, "localhost", ServerLauncher.port);
+                    String selectedRoom = roomButton.getText();
+                    new Chatting_Page(selectedRoom, "localhost", ServerLauncher.port);
                 }
             });
-            chatRoomPanel.add(roomButton);
+            
+            roomPanel.add(roomButton, BorderLayout.CENTER);
+            
+            chatRoomPanel.add(roomPanel);
+            
+            // 각 박스 사이에 10픽셀의 여백 추가
+            chatRoomPanel.add(Box.createVerticalStrut(10));
         }
 
         chatRoomPanel.revalidate();
         chatRoomPanel.repaint();
     }
+
+
+
 	
 //	public static void main(String[] args) {
 //		new ChattingList_Page();

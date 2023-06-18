@@ -44,22 +44,33 @@ public class BottomBar extends JPanel {
         add(chatLabel);
         
         
-        JLabel settingsLabel = new JLabel("설정");
-        settingsLabel.setForeground(new Color(64, 64, 64));
-        settingsLabel.setFont(new Font("나눔고딕코딩", Font.PLAIN, 17));
-        settingsLabel.setBorder(new EmptyBorder(10, 120, 10, 70));
+        JLabel logoutLabel = new JLabel("로그아웃");
+        logoutLabel.setForeground(new Color(64, 64, 64));
+        logoutLabel.setFont(new Font("나눔고딕코딩", Font.PLAIN, 17));
+        logoutLabel.setBorder(new EmptyBorder(10, 120, 10, 70));
         
-        settingsLabel.addMouseListener(new MouseAdapter() {
+        logoutLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                Setting_Page settingPage = PageManager.getInstance().getSettingPage();
-                settingPage.setVisible(true);
-            
+                // 현재 열려있는 모든 창 닫기
+                Window[] windows = Window.getWindows();
+                for (Window window : windows) {
+                    window.dispose();
+                }
+                
+                // isLoginIn 변수를 false로 변경
+                Login_Page.isLoginIn = false;
+                
+                // Start_Page로 돌아가기
+                Start_Page startPage = new Start_Page();
+                startPage.setVisible(true);
             }
         });
-        add(settingsLabel);
+        add(logoutLabel);
 
         setBounds(0, 610, 500, 60);
     }
+    
+    
 }
 
